@@ -1,0 +1,8 @@
+*.jl.cov
+*.jl.*.cov
+
+.DS_Store
+__pycache__/
+.CondaPkg/
+.vscode/
+.ipynb_checkpoints/
