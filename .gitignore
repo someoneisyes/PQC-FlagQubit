@@ -6,5 +6,3 @@ __pycache__/
 .CondaPkg/
 .vscode/
 .ipynb_checkpoints/
-
-.src/circuit
