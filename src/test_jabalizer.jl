@@ -1,8 +1,8 @@
 using Jabalizer
 
-circuit = [("H",["1"]),("CNOT",["1","2"]),("CNOT",["1","3"]),("H",["1"]),("X",["2"])]
+circuit = [("H",["1"]),("CNOT",["1","2"])]
 
-icm_circuit = Jabalizer.compile(circuit, 4, ["H","X"])
+icm_circuit = Jabalizer.compile(circuit, 3, [""])
 
 println(icm_circuit)
 
