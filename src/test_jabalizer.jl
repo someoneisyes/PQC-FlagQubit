@@ -1,24 +1,14 @@
 using Jabalizer
 
 circuit = [
-    ("H",["3"]),
+    ("CNOT",["2","1"]),
     ("CNOT",["2","3"]),
-    ("T^-1",["3"]),
-    ("CNOT",["1","3"]),
-    ("T",["3"]),
-    ("CNOT",["2","3"]),
-    ("T^-1",["3"]),
-    ("CNOT",["1","3"]),
-    ("T",["2"]),
-    ("T",["3"]),
-    ("CNOT",["1","2"]),
-    ("H",["3"]),
-    ("T",["1"]),
-    ("T^-1",["2"]),
-    ("CNOT",["1","2"]),
+    ("CNOT",["2","1"]),
+    ("CNOT",["3","1"]),
+    ("CNOT",["3","4"])
     ]
 
-icm_circuit = Jabalizer.compile(circuit, 4, ["H","T","T^-1"])
+icm_circuit = Jabalizer.compile(circuit, 4, [""])
 
 println(icm_circuit)
 
