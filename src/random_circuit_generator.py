@@ -5,7 +5,7 @@ line_qubits = []
 for i in range(4):
     line_qubits.append(cirq.LineQubit(i))
 
-circuit = cirq.testing.random_circuit(line_qubits,6,0.4,{cirq.H : 1, cirq.T: 1, cirq.CNOT: 2})
+circuit = cirq.testing.random_circuit(line_qubits,8,0.4,{cirq.H : 1, cirq.T: 1, cirq.CNOT: 2})
 
 f = open("random_circuit", "w")
 

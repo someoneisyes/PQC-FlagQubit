@@ -160,15 +160,18 @@ def run_all(new_circuit):
 
 final_res = 0
 
-for i in range(1000):
+iteration = 5000
+
+for i in range(iteration):
     x = run_all(new_circuit=new_circuit)
     final_res = final_res + x[0]
     c = x[1]
     d = x[2]
     
 print(c)
-print(d)
+print("circuit : {}".format(d[0:len(new_circuit.all_qubits())]))
+print("flags : {}".format(d[len(new_circuit.all_qubits()):len(c.all_qubits())]))
 
 print("times that flags are raised : {}".format(final_res))
 
-print("probability of flags being raised: {}".format(final_res*1.0/1000.0))
+print("probability of flags being raised: {}".format(final_res*1.0/iteration))
