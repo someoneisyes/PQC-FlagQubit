@@ -2,6 +2,14 @@ import stim
 import cirq
 import stimcirq
 import random
+
+def boolToBin(bool):
+    if bool == True:
+        return "1"
+    else:
+        return "_"
+    
+
 f = open("./src/circuit")
 
 json_string = f.read()
@@ -13,17 +21,9 @@ anc_num = 0
 
 new_circuit = cirq.read_json(json_text=json_string)
 
-print(new_circuit)
-
 for i in range(num_qubit, len(new_circuit.all_qubits())):
     new_circuit = new_circuit.transform_qubits(qubit_map = {cirq.NamedQubit("anc_{}".format(anc_num)): cirq.NamedQubit("{}".format(i))})
     anc_num += 1
-
-#ops = [cirq.measure(q) for q in new_circuit.all_qubits()]
-#new_circuit.append(ops)
-
-sampler = stimcirq.StimSampler()
-result = sampler.run(new_circuit, repetitions=30)
 
 print(new_circuit)
 
@@ -118,4 +118,9 @@ b = addflags(new_circuit,8,True,False,True,1)
 
 v = stimcirq.stim_circuit_to_cirq_circuit(b)
 
+result = b.compile_sampler().sample(30)
+
 print(v)
+
+for l in result:
+    print(list(map(boolToBin,l)))
