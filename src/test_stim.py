@@ -18,6 +18,8 @@ for i in range(num_qubit, len(new_circuit.all_qubits())):
     new_circuit = new_circuit.transform_qubits(qubit_map = {cirq.NamedQubit("anc_{}".format(anc_num)): cirq.NamedQubit("{}".format(i))})
     anc_num += 1
 
+print(new_circuit)
+
 def run_all(new_circuit):
 
     def boolToBin(bool):
@@ -25,8 +27,6 @@ def run_all(new_circuit):
             return 1
         else:
             return 0
-        
-    #print(new_circuit)
 
     def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
 
@@ -142,8 +142,6 @@ def run_all(new_circuit):
     for l in result:
         result_bin.append(list(map(boolToBin,l)))
 
-    #print(v)
-
     num_qubits = len(new_circuit.all_qubits())
     num_total = len(v.all_qubits())
 
@@ -158,12 +156,18 @@ def run_all(new_circuit):
 
         return 0
 
-    return flag_raised(result_bin)
+    return (flag_raised(result_bin), v, result_bin[0])
 
 final_res = 0
 
 for i in range(1000):
-    final_res = final_res + run_all(new_circuit=new_circuit)
+    x = run_all(new_circuit=new_circuit)
+    final_res = final_res + x[0]
+    c = x[1]
+    d = x[2]
+    
+print(c)
+print(d)
 
 print("times that flags are raised : {}".format(final_res))
 
