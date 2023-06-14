@@ -3,7 +3,22 @@ import cirq
 import stimcirq
 import random
 
-def run_all():
+f = open("./src/circuit")
+
+json_string = f.read()
+
+f.close()
+
+num_qubit = 4
+anc_num = 0
+
+new_circuit = cirq.read_json(json_text=json_string)
+
+for i in range(num_qubit, len(new_circuit.all_qubits())):
+    new_circuit = new_circuit.transform_qubits(qubit_map = {cirq.NamedQubit("anc_{}".format(anc_num)): cirq.NamedQubit("{}".format(i))})
+    anc_num += 1
+
+def run_all(new_circuit):
 
     def boolToBin(bool):
         if bool:
@@ -11,22 +26,6 @@ def run_all():
         else:
             return 0
         
-
-    f = open("./src/circuit")
-
-    json_string = f.read()
-
-    f.close()
-
-    num_qubit = 4
-    anc_num = 0
-
-    new_circuit = cirq.read_json(json_text=json_string)
-
-    for i in range(num_qubit, len(new_circuit.all_qubits())):
-        new_circuit = new_circuit.transform_qubits(qubit_map = {cirq.NamedQubit("anc_{}".format(anc_num)): cirq.NamedQubit("{}".format(i))})
-        anc_num += 1
-
     #print(new_circuit)
 
     def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
@@ -152,7 +151,7 @@ def run_all():
 final_res = 0
 
 for i in range(1000):
-    final_res = final_res + run_all()
+    final_res = final_res + run_all(new_circuit=new_circuit)
 
 print("times that flags are raised : {}".format(final_res))
 
