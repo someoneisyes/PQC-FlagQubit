@@ -37,28 +37,28 @@ def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
 
 
     #finding if there is many controls on 1 qubit
-    if x_errors:
-        control = []
-    if y_errors:
-        target = []
-    if x_errors:
-        for i in range(numqubits):
-            listo = []
-            for r in range(len(list)):
-                if list[r][5] == str(i):
-                    listo.append(list[r])
+    
+    control = []
+    
+    target = []
+    
+    for i in range(numqubits):
+        listo = []
+        for r in range(len(list)):
+            if list[r][5] == str(i):
+                listo.append(list[r])
 
-            control.append(listo)
+        control.append(listo)
 
     #finding if there is many targets on 1 qubit
-    if y_errors:      
-        for i in range(numqubits):
-            listo = []
-            for r in range(len(list)):
-                if list[r][8] == str(i):
-                    listo.append(list[r])
+         
+    for i in range(numqubits):
+        listo = []
+        for r in range(len(list)):
+            if list[r][8] == str(i):
+                listo.append(list[r])
 
-            target.append(listo)
+        target.append(listo)
 
     #Create new circuit but in stim
     c = stim.Circuit()
@@ -66,14 +66,16 @@ def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
     #adding the first end of the flags: 
     if x_errors:
         for r in range(len(control)):
-            if len(control[r]) >= 2:
-                c.append_operation("CNOT",[r,(numqubits+r)])
+            if len(control[r]) >= 1:
+                if len(target[r]) >= 1:
+                    c.append_operation("CNOT",[r,(numqubits+r)])
     if y_errors:
         for r in range(len(target)):
-            if len(target[r]) >= 2:
-                c.append_operation("X", (numqubits*2+r))
-                c.append_operation("H", (numqubits*2+r))
-                c.append_operation("CNOT",[(numqubits*2+r),r ])
+            if len(target[r]) >= 1:
+                if len(control[r]) > 1:
+                    c.append_operation("X", (numqubits*2+r))
+                    c.append_operation("H", (numqubits*2+r))
+                    c.append_operation("CNOT",[(numqubits*2+r),r ])
 
     #adding error
     if random_errors:
@@ -97,13 +99,15 @@ def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
     #adding the other end of the flags
     if x_errors:
         for r in range(len(control)):
-            if len(control[r]) >= 2:
-                c.append_operation("CNOT",[r,(numqubits+r)])
+            if len(control[r]) >= 1:
+                if len(target[r]) >= 1:
+                    c.append_operation("CNOT",[r,(numqubits+r)])
     if y_errors:
         for r in range(len(target)):
-            if len(target[r]) >= 2:
-                c.append_operation("CNOT",[(numqubits*2+r),r])
-                c.append_operation("H", (numqubits*2+r))
+            if len(target[r]) >= 1:
+                if len(control[r]) >= 1:
+                    c.append_operation("CNOT",[(numqubits*2+r),r])
+                    c.append_operation("H", (numqubits*2+r))
 
     #adding measurement gate 
 
