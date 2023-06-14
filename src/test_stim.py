@@ -9,7 +9,7 @@ json_string = f.read()
 
 f.close()
 
-num_qubit = 4
+num_qubit = 10
 anc_num = 0
 
 new_circuit = cirq.read_json(json_text=json_string)
@@ -18,7 +18,7 @@ for i in range(num_qubit, len(new_circuit.all_qubits())):
     new_circuit = new_circuit.transform_qubits(qubit_map = {cirq.NamedQubit("anc_{}".format(anc_num)): cirq.NamedQubit("{}".format(i))})
     anc_num += 1
 
-print(new_circuit)
+#print(new_circuit)
 
 def run_all(new_circuit):
 
@@ -29,6 +29,8 @@ def run_all(new_circuit):
             return 0
 
     def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
+
+        base_ten = ['0','1','2','3','4','5','6','7','8','9']
 
         #list of operators and the control and target qubit
         list = []
@@ -46,18 +48,32 @@ def run_all(new_circuit):
         for i in range(numqubits):
             listo = []
             for r in range(len(list)):
-                if list[r][5] == str(i):
-                    listo.append(list[r])
+                if not list[r][6] in base_ten: 
+                    if list[r][5] == str(i):
+                        listo.append(list[r])
+                elif not list[r][7] in base_ten:
+                    if list[r][5:7] == str(i):
+                        listo.append(list[r])
+                elif not list[r][8] in base_ten:
+                    if list[r][5:8] == str(i):
+                        listo.append(list[r])
 
             control.append(listo)
-
+        
         #finding if there is many targets on 1 qubit
             
         for i in range(numqubits):
             listo = []
             for r in range(len(list)):
-                if list[r][8] == str(i):
-                    listo.append(list[r])
+                if not list[r][9] in base_ten: 
+                    if list[r][8] == str(i):
+                        listo.append(list[r])
+                elif not list[r][10] in base_ten:
+                    if list[r][8:10] == str(i):
+                        listo.append(list[r])
+                elif not list[r][11] in base_ten:
+                    if list[r][8:11] == str(i):
+                        listo.append(list[r])
 
             target.append(listo)
 
@@ -94,13 +110,19 @@ def run_all(new_circuit):
             
             
             
-
+        
         #adding the original circuit 
         for d in range(len(list)):
             if list[d][0] == 'C':
-                c.append_operation("CNOT",[int(list[d][5]),int(list[d][8])])
+                if not list[d][6] in base_ten:
+                    c.append_operation("CNOT",[int(list[d][5]),int(list[d][8:len(list[d])-1])])
+                elif list[d][6] in base_ten and not list[d][7] in base_ten:
+                    c.append_operation("CNOT",[int(list[d][5:7]),int(list[d][9:len(list[d])-1])])  
+                elif list[d][7] in base_ten and not list[d][8] in base_ten:
+                    c.append_operation("CNOT",[int(list[d][5:8]),int(list[d][10:len(list[d])-1])])        
+                
             elif list[d][0] == 'X':
-                c.append_operation("X_ERROR",int(list[d][2]),1)
+                c.append_operation("X_ERROR",int(list[d][2:len(list[d])-1]),1)
 
 
         #adding the other end of the flags
@@ -109,7 +131,7 @@ def run_all(new_circuit):
                 if len(control[r]) >= 1:
                     if len(target[r]) >= 1:
                         c.append_operation("CNOT",[r,(numqubits+r)])
-                elif len(control[r]) >= 2:
+                elif len(control[r]) >= 1:
                     c.append_operation("CNOT",[r,(numqubits+r)])
         if y_errors:
             for r in range(len(target)):
@@ -118,24 +140,24 @@ def run_all(new_circuit):
                         c.append_operation("CNOT",[(numqubits*2+r),r])
                         c.append_operation("H", (numqubits*2+r))
 
-                if len(target[r]) >= 2:
+                if len(target[r]) >= 1:
                         c.append_operation("CNOT",[(numqubits*2+r),r])
                         c.append_operation("H", (numqubits*2+r))
 
         #adding measurement gate 
+
+        v = stimcirq.stim_circuit_to_cirq_circuit(c)
 
         for i in  range(numqubits*2):
             c.append_operation("MR",i)
 
         
 
-        return c
+        return (c,v)
 
-    b = addflags(new_circuit,len(new_circuit.all_qubits()),True,False,True,1) 
+    b = addflags(new_circuit,len(new_circuit.all_qubits()),True,False,True,20)
 
-    v = stimcirq.stim_circuit_to_cirq_circuit(b)
-
-    result = b.compile_sampler().sample(1)
+    result = b[0].compile_sampler().sample(1)
 
     result_bin = []
 
@@ -143,7 +165,7 @@ def run_all(new_circuit):
         result_bin.append(list(map(boolToBin,l)))
 
     num_qubits = len(new_circuit.all_qubits())
-    num_total = len(v.all_qubits())
+    num_total = len(stimcirq.stim_circuit_to_cirq_circuit(b[0]).all_qubits())
 
     num_ancs = num_total - num_qubits
 
@@ -156,19 +178,21 @@ def run_all(new_circuit):
 
         return 0
 
-    return (flag_raised(result_bin), v, result_bin[0])
+    return (flag_raised(result_bin), b[1], result_bin[0])
 
 final_res = 0
 
-iteration = 5000
+iteration = 1000
 
 for i in range(iteration):
     x = run_all(new_circuit=new_circuit)
     final_res = final_res + x[0]
     c = x[1]
     d = x[2]
-    
-print(c)
+
+#print(c)
+print("numbers of qubits (excluding flags) : {}".format(len(new_circuit.all_qubits())))
+print("numbers of flags : {}".format(len(c.all_qubits())-len(new_circuit.all_qubits())))
 print("circuit : {}".format(d[0:len(new_circuit.all_qubits())]))
 print("flags : {}".format(d[len(new_circuit.all_qubits()):len(c.all_qubits())]))
 

@@ -2,7 +2,7 @@ using Jabalizer
 
 circuit = Jabalizer.load_circuit_from_cirq_json("random_circuit")
 
-icm_circuit = Jabalizer.compile(circuit, 4, ["H","T"])
+icm_circuit = Jabalizer.compile(circuit, 20, ["H","T"])
 
 println(icm_circuit)
 
