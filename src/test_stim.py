@@ -70,6 +70,8 @@ def run_all(new_circuit):
                 if len(control[r]) >= 1:
                     if len(target[r]) >= 1:
                         c.append_operation("CNOT",[r,(numqubits+r)])
+                elif len(control[r]) >= 2:
+                    c.append_operation("CNOT",[r,(numqubits+r)])
         if y_errors:
             for r in range(len(target)):
                 if len(target[r]) >= 1:
@@ -77,6 +79,10 @@ def run_all(new_circuit):
                         c.append_operation("X", (numqubits*2+r))
                         c.append_operation("H", (numqubits*2+r))
                         c.append_operation("CNOT",[(numqubits*2+r),r ])
+                if len(target[r]) >= 2:
+                    c.append_operation("X", (numqubits*2+r))
+                    c.append_operation("H", (numqubits*2+r))
+                    c.append_operation("CNOT",[(numqubits*2+r),r ])
 
         #adding error
         if random_errors:
@@ -103,10 +109,16 @@ def run_all(new_circuit):
                 if len(control[r]) >= 1:
                     if len(target[r]) >= 1:
                         c.append_operation("CNOT",[r,(numqubits+r)])
+                elif len(control[r]) >= 2:
+                    c.append_operation("CNOT",[r,(numqubits+r)])
         if y_errors:
             for r in range(len(target)):
                 if len(target[r]) >= 1:
                     if len(control[r]) >= 1:
+                        c.append_operation("CNOT",[(numqubits*2+r),r])
+                        c.append_operation("H", (numqubits*2+r))
+
+                if len(target[r]) >= 2:
                         c.append_operation("CNOT",[(numqubits*2+r),r])
                         c.append_operation("H", (numqubits*2+r))
 
