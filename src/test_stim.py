@@ -1,7 +1,7 @@
 import stim
 import cirq
 import stimcirq
-
+import random
 f = open("./src/circuit")
 
 json_string = f.read()
@@ -26,4 +26,96 @@ sampler = stimcirq.StimSampler()
 result = sampler.run(new_circuit, repetitions=30)
 
 print(new_circuit)
-print(result)
+
+def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
+
+    #list of operators and the control and target qubit
+    list = []
+    for moment in circuit:
+        for i in moment:
+            list.append(str(i))
+
+
+    #finding if there is many controls on 1 qubit
+    if x_errors:
+        control = []
+    if y_errors:
+        target = []
+    if x_errors:
+        for i in range(numqubits):
+            listo = []
+            for r in range(len(list)):
+                if list[r][5] == str(i):
+                    listo.append(list[r])
+
+            control.append(listo)
+
+    #finding if there is many targets on 1 qubit
+    if y_errors:      
+        for i in range(numqubits):
+            listo = []
+            for r in range(len(list)):
+                if list[r][8] == str(i):
+                    listo.append(list[r])
+
+            target.append(listo)
+
+    #Create new circuit but in stim
+    c = stim.Circuit()
+
+    #adding the first end of the flags: 
+    if x_errors:
+        for r in range(len(control)):
+            if len(control[r]) >= 2:
+                c.append_operation("CNOT",[r,(numqubits+r)])
+    if y_errors:
+        for r in range(len(target)):
+            if len(target[r]) >= 2:
+                c.append_operation("X", (numqubits*2+r))
+                c.append_operation("H", (numqubits*2+r))
+                c.append_operation("CNOT",[(numqubits*2+r),r ])
+
+    #adding error
+    if random_errors:
+        for i in range(numerrors):
+            rand = random.randrange(numqubits)
+            pos = random.randrange(len(list))
+            list.insert(pos,"X({e})".format(e = rand))
+        
+        
+        
+        
+
+    #adding the original circuit 
+    for d in range(len(list)):
+        if list[d][0] == 'C':
+            c.append_operation("CNOT",[int(list[d][5]),int(list[d][8])])
+        elif list[d][0] == 'X':
+            c.append_operation("X_ERROR",int(list[d][2]),1)
+
+
+    #adding the other end of the flags
+    if x_errors:
+        for r in range(len(control)):
+            if len(control[r]) >= 2:
+                c.append_operation("CNOT",[r,(numqubits+r)])
+    if y_errors:
+        for r in range(len(target)):
+            if len(target[r]) >= 2:
+                c.append_operation("CNOT",[(numqubits*2+r),r])
+                c.append_operation("H", (numqubits*2+r))
+
+    #adding measurement gate 
+
+    for i in  range(numqubits*2):
+        c.append_operation("MR",i)
+
+    
+
+    return c
+
+b = addflags(new_circuit,8,True,False,True,1) 
+
+v = stimcirq.stim_circuit_to_cirq_circuit(b)
+
+print(v)
