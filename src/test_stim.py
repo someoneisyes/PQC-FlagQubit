@@ -5,9 +5,9 @@ import random
 
 def boolToBin(bool):
     if bool == True:
-        return "1"
+        return 1
     else:
-        return "_"
+        return 0
     
 
 f = open("./src/circuit")
@@ -114,11 +114,11 @@ def addflags(circuit,numqubits,x_errors,y_errors,random_errors,numerrors):
 
     return c
 
-b = addflags(new_circuit,8,True,False,True,1) 
+b = addflags(new_circuit,10,True,False,True,1) 
 
 v = stimcirq.stim_circuit_to_cirq_circuit(b)
 
-result = b.compile_sampler().sample(30)
+result = b.compile_sampler().sample(1)
 
 print(v)
 
